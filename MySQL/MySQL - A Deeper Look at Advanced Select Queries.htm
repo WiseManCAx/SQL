@@ -1,0 +1,815 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head> 
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+<title>A Deeper Look at Advanced Select Queries</title> 
+ 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+	<link rel="stylesheet" href="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/tutsplus.css" type="text/css" media="screen" charset="utf-8">	
+	<link rel="shortcut icon" href="http://psdtuts.com/wp-content/themes/psdtuts_v2/site_images/at_sfavicon.ico"> 
+	<style> #content, #inner { width: 600px; margin: auto; position: relative;  } #logo { position: absolute; top: -100px; left: 0;} #top { padding-top: 90px;} #content img { max-width: 100%;} h2 { margin-bottom: 0; } #content img { margin-bottom: 10px; } #inner h2 { margin-bottom: -20px; }</style>
+<script src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/ga.js" async="" type="text/javascript"></script><script src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/sf_preloader.jsp" type="text/javascript"></script><script src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/sf_code.jsp" type="text/javascript"></script><script src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/base_single_icon.js" type="text/javascript"></script><style>#ghostery-alert-3091{border:solid 2px #ffffff !important;box-sizing:content-box !important;display:block !important;margin:0 !important;opacity:0.9 !important;padding:0 !important;position:fixed !important;scrolling:no !important;seamless:seamless !important;visibility:visible !important;z-index:2147483647 !important;-moz-border-radius:5px !important;border-radius:5px !important;box-shadow:0px 0px 20px #000000 !important;-moz-box-shadow:0px 0px 20px #000000 !important;text-transform: none !important;box-sizing:content-box !important;-moz-box-sizing:content-box !important;}@media print, screen and (view-mode:minimized){#ghostery-alert-3091{display:none !important;}}</style><style type="text/css"></style><script src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/mixpanel-2.js" async="" type="text/javascript"></script><style type="text/css"></style></head> 
+ 
+<body> 
+<div id="top"> 
+	<div id="inner">
+  <img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/logo.htm" id="logo"> 
+  <img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/advanced_select_queries.png" id="preview"> 
+  <h2> A Deeper Look at Advanced Select Queries</h2> 
+  <h4>By: John Cox</h4> 
+	<p style="min-height: 60px;">
+	To the SQL novice, joins can be intimidating and somewhat frustrating. 
+ Even when you think you have the query nailed, along comes an 
+unexpected result which make you throw up your arms in surrender to the 
+SQL gods.  In this tutorial, we are going to build upon the excellent 
+quick tip of <a href="http://net.tutsplus.com/tutorials/databases/quick-tip-working-with-mysql-and-inner-join/">working with MySQL and INNER JOIN</a> recently posted and crack open the real power of a SELECT statement.
+	</p>
+	</div>
+</div> 
+ 
+<div id="content"> 
+
+<hr> <h2>Tutorial Details</h2> 
+    <ul>
+        <li><b>Program</b>: MySQL</li>
+        <li><b>Difficulty:</b> Moderate</li>
+        <li><b>Estimated Completion Time:</b> 20 Minutes</li>
+    </ul>
+
+<hr> <h2> Introduction</h2>
+
+<p>Think back to your earliest days of school where you were learning to
+ group items, or learning basic math skills, or even how to spell.  If 
+your days of school were anything like mine, there were tons of 
+exercises where there were pictures of things and you grouped those 
+things together.  It might have been ducks and cows, where you had to 
+count each.  It might have been word searches where you were given a 
+block of seemingly random letters from which you had to find a list of 
+words.  You might remember "Which one of these are not like the other" 
+game.</p>
+
+<p>These basic games that everyone learns in their earliest days of 
+school is exactly the same skills that you use when you are working with
+ SELECTs.  We just have a different syntax that we have to use.  Every 
+time we use a SELECT command we are simply grouping a data set.  Using 
+JOINs we are simply grouping multiple data sets.  We are finding ducks 
+and cows that are either similar or different and pushing that off into 
+an array that we can work with in our logic layer.  It's the syntax that
+ is confounding, but what we are doing is the same thing that we did in 
+our very earliest days of school.</p>
+
+<blockquote class="pullquote pqRight"> <p> "Every time we use a SELECT 
+command we are simply grouping a data set.  Using JOINs we are simply 
+grouping multiple data sets.  We are finding ducks and cows that are 
+either similar or different and pushing that off into an array that we 
+can work with in our logic layer.  It's the syntax that is 
+confounding..." </p> </blockquote>
+
+<p>I am going to cover a few things in this tutorial, but none are 
+extremely difficult to put into practice.  I am using MySQL as my 
+database, but for the most part I will be using simple SELECT syntax 
+that should at least be familiar regardless of your flavor of SQL.  For 
+my query tool, I am using <a href="http://www.sequelpro.com/">Sequel Pro for Mac</a>
+ which is relatively fast and descriptive for my purposes today.  I am 
+using a very simple table structure of animal types, farms, and wild.  
+For those playing along at home, the table structure looks something 
+like this:</p>
+
+<div class="dp-highlighter"><div class="bar"><div class="tools"><a href="#" onclick="dp.sh.Toolbar.Command('ViewSource',this);return false;">view plain</a><a href="#" onclick="dp.sh.Toolbar.Command('CopyToClipboard',this);return false;">copy to clipboard</a><a href="#" onclick="dp.sh.Toolbar.Command('PrintSource',this);return false;">print</a><a href="#" onclick="dp.sh.Toolbar.Command('About',this);return false;">?</a></div></div><ol class="dp-c" start="1"><li class="alt"><span><span>--&nbsp;&nbsp;</span></span></li><li class=""><span>--&nbsp;Table&nbsp;structure&nbsp;<span class="keyword">for</span><span>&nbsp;table&nbsp;`animal_types`&nbsp;&nbsp;</span></span></li><li class="alt"><span>--&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>CREATE&nbsp;TABLE&nbsp;`animal_types`&nbsp;(&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;`animal_type_id`&nbsp;int(11)&nbsp;NOT&nbsp;NULL&nbsp;AUTO_INCREMENT,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;`animal_type_description`&nbsp;varchar(255)&nbsp;NOT&nbsp;NULL,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;PRIMARY&nbsp;KEY&nbsp;(`animal_type_id`)&nbsp;&nbsp;</span></li><li class="alt"><span>)&nbsp;ENGINE=MyISAM&nbsp;&nbsp;DEFAULT&nbsp;CHARSET=utf8&nbsp;AUTO_INCREMENT=7&nbsp;;&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>--&nbsp;&nbsp;</span></li><li class=""><span>--&nbsp;Dumping&nbsp;data&nbsp;<span class="keyword">for</span><span>&nbsp;table&nbsp;`animal_types`&nbsp;&nbsp;</span></span></li><li class="alt"><span>--&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>INSERT&nbsp;INTO&nbsp;`animal_types`&nbsp;VALUES(1,&nbsp;<span class="string">'duck'</span><span>);&nbsp;&nbsp;</span></span></li><li class=""><span>INSERT&nbsp;INTO&nbsp;`animal_types`&nbsp;VALUES(2,&nbsp;<span class="string">'cow'</span><span>);&nbsp;&nbsp;</span></span></li><li class="alt"><span>INSERT&nbsp;INTO&nbsp;`animal_types`&nbsp;VALUES(3,&nbsp;<span class="string">'goose'</span><span>);&nbsp;&nbsp;</span></span></li><li class=""><span>INSERT&nbsp;INTO&nbsp;`animal_types`&nbsp;VALUES(4,&nbsp;<span class="string">'cat'</span><span>);&nbsp;&nbsp;</span></span></li><li class="alt"><span>INSERT&nbsp;INTO&nbsp;`animal_types`&nbsp;VALUES(5,&nbsp;<span class="string">'sheep'</span><span>);&nbsp;&nbsp;</span></span></li><li class=""><span>INSERT&nbsp;INTO&nbsp;`animal_types`&nbsp;VALUES(6,&nbsp;<span class="string">'horse'</span><span>);&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>--&nbsp;&nbsp;</span></li><li class="alt"><span>--&nbsp;Table&nbsp;structure&nbsp;<span class="keyword">for</span><span>&nbsp;table&nbsp;`farm`&nbsp;&nbsp;</span></span></li><li class=""><span>--&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>CREATE&nbsp;TABLE&nbsp;`farm`&nbsp;(&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;`animal_id`&nbsp;int(11)&nbsp;NOT&nbsp;NULL&nbsp;AUTO_INCREMENT,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;`animal_type`&nbsp;int(11)&nbsp;NOT&nbsp;NULL,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;`animal_description`&nbsp;varchar(255)&nbsp;NOT&nbsp;NULL,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;`animal_name`&nbsp;varchar(255)&nbsp;NOT&nbsp;NULL,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;PRIMARY&nbsp;KEY&nbsp;(`animal_id`)&nbsp;&nbsp;</span></li><li class=""><span>)&nbsp;ENGINE=MyISAM&nbsp;&nbsp;DEFAULT&nbsp;CHARSET=utf8&nbsp;AUTO_INCREMENT=5&nbsp;;&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>--&nbsp;&nbsp;</span></li><li class="alt"><span>--&nbsp;Dumping&nbsp;data&nbsp;<span class="keyword">for</span><span>&nbsp;table&nbsp;`farm`&nbsp;&nbsp;</span></span></li><li class=""><span>--&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>INSERT&nbsp;INTO&nbsp;`farm`&nbsp;VALUES(1,&nbsp;2,&nbsp;<span class="string">'spotted'</span><span>,&nbsp;</span><span class="string">'Mal'</span><span>);&nbsp;&nbsp;</span></span></li><li class="alt"><span>INSERT&nbsp;INTO&nbsp;`farm`&nbsp;VALUES(2,&nbsp;4,&nbsp;<span class="string">'spotted'</span><span>,&nbsp;</span><span class="string">'Zoe'</span><span>);&nbsp;&nbsp;</span></span></li><li class=""><span>INSERT&nbsp;INTO&nbsp;`farm`&nbsp;VALUES(3,&nbsp;1,&nbsp;<span class="string">'solid&nbsp;color'</span><span>,&nbsp;</span><span class="string">'Wash'</span><span>);&nbsp;&nbsp;</span></span></li><li class="alt"><span>INSERT&nbsp;INTO&nbsp;`farm`&nbsp;VALUES(4,&nbsp;2,&nbsp;<span class="string">'solid&nbsp;color'</span><span>,&nbsp;</span><span class="string">'Inara'</span><span>);&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>--&nbsp;&nbsp;</span></li><li class=""><span>--&nbsp;Table&nbsp;structure&nbsp;<span class="keyword">for</span><span>&nbsp;table&nbsp;`wild`&nbsp;&nbsp;</span></span></li><li class="alt"><span>--&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>CREATE&nbsp;TABLE&nbsp;`wild`&nbsp;(&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;`animal_id`&nbsp;int(11)&nbsp;NOT&nbsp;NULL&nbsp;AUTO_INCREMENT,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;`animal_type`&nbsp;int(11)&nbsp;NOT&nbsp;NULL,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;`animal_description`&nbsp;varchar(255)&nbsp;NOT&nbsp;NULL,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;`animal_name`&nbsp;varchar(255)&nbsp;NOT&nbsp;NULL,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;PRIMARY&nbsp;KEY&nbsp;(`animal_id`)&nbsp;&nbsp;</span></li><li class="alt"><span>)&nbsp;ENGINE=MyISAM&nbsp;&nbsp;DEFAULT&nbsp;CHARSET=utf8&nbsp;AUTO_INCREMENT=6&nbsp;;&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>--&nbsp;&nbsp;</span></li><li class=""><span>--&nbsp;Dumping&nbsp;data&nbsp;<span class="keyword">for</span><span>&nbsp;table&nbsp;`wild`&nbsp;&nbsp;</span></span></li><li class="alt"><span>--&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>INSERT&nbsp;INTO&nbsp;`wild`&nbsp;(`animal_id`,&nbsp;`animal_type`,&nbsp;`animal_description`,&nbsp;`animal_name`)&nbsp;VALUES(1,&nbsp;2,&nbsp;<span class="string">'spotted'</span><span>,&nbsp;</span><span class="string">'Jayne'</span><span>);&nbsp;&nbsp;</span></span></li><li class=""><span>INSERT&nbsp;INTO&nbsp;`wild`&nbsp;(`animal_id`,&nbsp;`animal_type`,&nbsp;`animal_description`,&nbsp;`animal_name`)&nbsp;VALUES(2,&nbsp;6,&nbsp;<span class="string">'solid&nbsp;color'</span><span>,&nbsp;</span><span class="string">'Kaylee'</span><span>);&nbsp;&nbsp;</span></span></li><li class="alt"><span>INSERT&nbsp;INTO&nbsp;`wild`&nbsp;(`animal_id`,&nbsp;`animal_type`,&nbsp;`animal_description`,&nbsp;`animal_name`)&nbsp;VALUES(3,&nbsp;1,&nbsp;<span class="string">'spotted'</span><span>,&nbsp;</span><span class="string">'Simon'</span><span>);&nbsp;&nbsp;</span></span></li><li class=""><span>INSERT&nbsp;INTO&nbsp;`wild`&nbsp;(`animal_id`,&nbsp;`animal_type`,&nbsp;`animal_description`,&nbsp;`animal_name`)&nbsp;VALUES(4,&nbsp;3,&nbsp;<span class="string">'solid&nbsp;color'</span><span>,&nbsp;</span><span class="string">'River'</span><span>);&nbsp;&nbsp;</span></span></li><li class="alt"><span>INSERT&nbsp;INTO&nbsp;`wild`&nbsp;(`animal_id`,&nbsp;`animal_type`,&nbsp;`animal_description`,&nbsp;`animal_name`)&nbsp;VALUES(5,&nbsp;5,&nbsp;<span class="string">'solid&nbsp;color'</span><span>,&nbsp;</span><span class="string">'Sheppard'</span><span>);&nbsp;&nbsp;</span></span></li></ol></div><pre style="display: none;" name="code" class="php">--
+-- Table structure for table `animal_types`
+--
+
+CREATE TABLE `animal_types` (
+  `animal_type_id` int(11) NOT NULL AUTO_INCREMENT,
+  `animal_type_description` varchar(255) NOT NULL,
+  PRIMARY KEY (`animal_type_id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=7 ;
+
+--
+-- Dumping data for table `animal_types`
+--
+
+INSERT INTO `animal_types` VALUES(1, 'duck');
+INSERT INTO `animal_types` VALUES(2, 'cow');
+INSERT INTO `animal_types` VALUES(3, 'goose');
+INSERT INTO `animal_types` VALUES(4, 'cat');
+INSERT INTO `animal_types` VALUES(5, 'sheep');
+INSERT INTO `animal_types` VALUES(6, 'horse');
+
+--
+-- Table structure for table `farm`
+--
+
+CREATE TABLE `farm` (
+  `animal_id` int(11) NOT NULL AUTO_INCREMENT,
+  `animal_type` int(11) NOT NULL,
+  `animal_description` varchar(255) NOT NULL,
+  `animal_name` varchar(255) NOT NULL,
+  PRIMARY KEY (`animal_id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
+
+--
+-- Dumping data for table `farm`
+--
+
+INSERT INTO `farm` VALUES(1, 2, 'spotted', 'Mal');
+INSERT INTO `farm` VALUES(2, 4, 'spotted', 'Zoe');
+INSERT INTO `farm` VALUES(3, 1, 'solid color', 'Wash');
+INSERT INTO `farm` VALUES(4, 2, 'solid color', 'Inara');
+
+--
+-- Table structure for table `wild`
+--
+
+CREATE TABLE `wild` (
+  `animal_id` int(11) NOT NULL AUTO_INCREMENT,
+  `animal_type` int(11) NOT NULL,
+  `animal_description` varchar(255) NOT NULL,
+  `animal_name` varchar(255) NOT NULL,
+  PRIMARY KEY (`animal_id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=6 ;
+
+--
+-- Dumping data for table `wild`
+--
+
+INSERT INTO `wild` (`animal_id`, `animal_type`, `animal_description`, `animal_name`) VALUES(1, 2, 'spotted', 'Jayne');
+INSERT INTO `wild` (`animal_id`, `animal_type`, `animal_description`, `animal_name`) VALUES(2, 6, 'solid color', 'Kaylee');
+INSERT INTO `wild` (`animal_id`, `animal_type`, `animal_description`, `animal_name`) VALUES(3, 1, 'spotted', 'Simon');
+INSERT INTO `wild` (`animal_id`, `animal_type`, `animal_description`, `animal_name`) VALUES(4, 3, 'solid color', 'River');
+INSERT INTO `wild` (`animal_id`, `animal_type`, `animal_description`, `animal_name`) VALUES(5, 5, 'solid color', 'Sheppard');
+</pre>
+
+
+<hr> <h2> <span>Back to Basics</span>: Breaking the Shortcut Habit</h2>
+
+<p>Since it is the syntax, and not necessarily the concepts that are 
+difficult, we should take a couple of steps back and remember some of 
+the basics.  There are many different shortcuts that you can take in 
+writing a SELECT, but many times those shortcuts will cause trouble down
+ the line.  I tend to write my queries out, so that I don't have 
+ambiguous column names, and I can see exactly what I am expecting to 
+get.</p>
+
+<p>Let's first start with my animal_types table which has a few animal 
+types entered in.  If I wanted to select everything in that table, I 
+could write my select like so:</p>
+
+<div class="dp-highlighter"><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;*&nbsp;&nbsp;</span></span></li><li class=""><span>FROM&nbsp;animal_types&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT *
+FROM animal_types
+</pre>
+
+<p>Which would give me a data set of:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/basics_1.png" title="Back to Basics">
+
+<p>The problem with using the " * " selector is that a year from now I 
+probably will not remember what I am expecting from this SELECT.  
+Furthermore, when I am joining tables, I will probably have ambiguous 
+column names, meaning there are multiple columns that have the same 
+name, thus SQL has no way of setting the results apart.  Instead, let's 
+be specific, which takes just a little more typing, but corrects some of
+ these problems with taking shortcuts:</p>
+
+<div class="dp-highlighter"><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;animal_type_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;animal_type_description&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>FROM&nbsp;animal_types&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT animal_type_id,
+       animal_type_description
+
+FROM animal_types
+</pre>
+
+<p>Which gives the exact data set back, but I see exactly what I should be getting back:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/basics_2.png" title="Back to Basics">
+
+<p>Even though we are explicitly naming our column names, we can go just
+ a little bit further, and that is explicitly saying these columns 
+belong to this table.  This is another shortcut that we take all the 
+time, which adds just a little more time to writing queries, but ends up
+ saving the debugging time later when you are joining other tables.  
+Instead of our last query, let's instead explicitly prefix our columns 
+with a table prefix:</p>
+
+<div class="dp-highlighter"><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;att.animal_type_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;att.animal_type_description&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>FROM&nbsp;animal_types&nbsp;att&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT att.animal_type_id,
+       att.animal_type_description
+
+FROM animal_types att
+</pre>
+
+<p>We have added the prefix on the table animal_types of att, which 
+tells SQL, when you see the prefix of u, realize that it belongs to the 
+table named animal_types.  Our data set looks exactly the same again:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/basics_3.png" title="Back to Basics">
+
+<p>Let's also tell SQL what to name our columns when it gives us our 
+results.  Many times when you are working with JOINs or other advanced 
+queries, two columns will have the same name, which makes it difficult 
+to distinguish in your logic layer.  I like to explicitly tell SQL to 
+deliver my column names in the manner that I want, and not necessarily 
+as they are named.  To do this, we are going to use the AS keyword:</p>
+
+<div class="dp-highlighter"><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;att.animal_type_id&nbsp;AS&nbsp;animal_type_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;att.animal_type_description&nbsp;AS&nbsp;animal_type_description&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>FROM&nbsp;animal_types&nbsp;att&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT att.animal_type_id AS animal_type_id,
+       att.animal_type_description AS animal_type_description
+
+FROM animal_types att
+</pre>
+
+<p>Which again gives us the exact same data set but we have again been even more explicit in our query:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/basics_4.png" title="Back to Basics">
+
+<p>There is one more way to be sure that I am telling SQL to SELECT 
+exactly what I want, and from where I want, and that is to add the 
+database prefix onto my table.  Programming languages and different 
+tools make it very easy for the database name to be implied, but there 
+are times where you might call a different database in a query.  When 
+you add the database prefix you take the implication of working with a 
+single database out of the mix.</p>
+
+<pre>SELECT att.animal_type_id AS animal_type_id,
+       att.animal_type_description AS animal_type_description
+
+FROM tutorial.animal_types att
+</pre>
+
+<p>Again, exact same data set:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/basics_5.png" title="Back to Basics">
+
+<p>Except now we are telling SQL to explicitly look in the database 
+"tutorial" for the table "animal_types".  Again, this comes in handy 
+when we are pulling information from multiple databases into a single 
+select.</p>
+
+<hr> <h2> <span>Sub-Selects</span>: Multiple Selects Bundled Together</h2>
+
+<p>MySQL 4.1 added the ability to use Sub-Selects.  A word of caution on
+ Sub-Selects before we get too deep into them, use them wisely.  The 
+execution plan for Sub-Selects may well be much different than you would
+ imagine, and thus when you believe that you are using an INDEX, you are
+ really working with a full table scan.  In my experience, you can 
+optimize your Sub-Selects to be just as performance friendly as a 
+natural join, but when you are dealing with optimization you will want 
+to pay close attention to the EXPLAIN results on your query.  For more 
+information, <a href="http://net.tutsplus.com/tutorials/databases/profiling-mysql-queries-with-phpmyadmin-new-premium-tutorial/" title="Profiling MySQL Queries with phpMyAdmin">
+take a look at a recent MySQL optimization tutorial</a> which gives you insight on the query execution plans.</p>
+
+<p>What a Sub-Select is basically executing a SELECT statement within a SELECT statement.  Let's take a look at a very common use:</p>
+
+<div class="dp-highlighter"><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;f.animal_id&nbsp;AS&nbsp;animal_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_type&nbsp;AS&nbsp;animal_type,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_description&nbsp;AS&nbsp;animal_description,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_name&nbsp;AS&nbsp;animal_name&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>FROM&nbsp;tutorial.farm&nbsp;f&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>WHERE&nbsp;f.animal_type&nbsp;IN&nbsp;(SELECT&nbsp;att.animal_type_id&nbsp;FROM&nbsp;tutorial.animal_types&nbsp;att&nbsp;where&nbsp;att.animal_type_id&nbsp;=&nbsp;2)&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT f.animal_id AS animal_id,
+       f.animal_type AS animal_type,
+       f.animal_description AS animal_description,
+       f.animal_name AS animal_name
+
+FROM tutorial.farm f
+
+WHERE f.animal_type IN (SELECT att.animal_type_id FROM tutorial.animal_types att where att.animal_type_id = 2)
+</pre>
+
+<p>Which gives us a data set of:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/ss_1.png" title="Sub Selects">
+
+<p>In this case we are saying to return all farm animals that have are 
+of an animal type 2.  Let's build on this just a bit, and instead look 
+for animal type 1 or 2.</p>
+
+<div class="dp-highlighter"><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;f.animal_id&nbsp;AS&nbsp;animal_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_type&nbsp;AS&nbsp;animal_type,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_description&nbsp;AS&nbsp;animal_description,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_name&nbsp;AS&nbsp;animal_name&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>FROM&nbsp;tutorial.farm&nbsp;f&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>WHERE&nbsp;f.animal_type&nbsp;IN&nbsp;(SELECT&nbsp;att.animal_type_id&nbsp;FROM&nbsp;tutorial.animal_types&nbsp;att&nbsp;where&nbsp;att.animal_type_id&nbsp;=&nbsp;2&nbsp;OR&nbsp;att.animal_type_id&nbsp;=&nbsp;1)&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT f.animal_id AS animal_id,
+       f.animal_type AS animal_type,
+       f.animal_description AS animal_description,
+       f.animal_name AS animal_name
+
+FROM tutorial.farm f
+
+WHERE f.animal_type IN (SELECT att.animal_type_id FROM tutorial.animal_types att where att.animal_type_id = 2 OR att.animal_type_id = 1)
+</pre>
+
+<p>Which now gives us a result of:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/ss_2.png" title="Sub Selects">
+
+<p>We are using the IN keyword to tell SQL to look at the results from 
+our Sub-Select.  In this case, we could easily rewrite this to not use a
+ Sub-Select and get the same results:</p>
+
+<div class="dp-highlighter"><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;f.animal_id&nbsp;AS&nbsp;animal_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_type&nbsp;AS&nbsp;animal_type,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_description&nbsp;AS&nbsp;animal_description,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_name&nbsp;AS&nbsp;animal_name&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>FROM&nbsp;tutorial.farm&nbsp;f&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>WHERE&nbsp;f.animal_type&nbsp;IN&nbsp;(1,&nbsp;2)&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT f.animal_id AS animal_id,
+       f.animal_type AS animal_type,
+       f.animal_description AS animal_description,
+       f.animal_name AS animal_name
+
+FROM tutorial.farm f
+
+WHERE f.animal_type IN (1, 2)
+</pre>
+
+<p>Exact same results as before:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/ss_3.png" title="Sub Selects">
+
+<p>However, when we change our Sub-Select to be something like:</p>
+
+<div class="dp-highlighter"><div class="bar"><div class="tools"><a href="#" onclick="dp.sh.Toolbar.Command('ViewSource',this);return false;">view plain</a><a href="#" onclick="dp.sh.Toolbar.Command('CopyToClipboard',this);return false;">copy to clipboard</a><a href="#" onclick="dp.sh.Toolbar.Command('PrintSource',this);return false;">print</a><a href="#" onclick="dp.sh.Toolbar.Command('About',this);return false;">?</a></div></div><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;f.animal_id&nbsp;AS&nbsp;animal_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_type&nbsp;AS&nbsp;animal_type,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_description&nbsp;AS&nbsp;animal_description,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_name&nbsp;AS&nbsp;animal_name&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>FROM&nbsp;tutorial.farm&nbsp;f&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>WHERE&nbsp;f.animal_type&nbsp;IN&nbsp;(SELECT&nbsp;att.animal_type_id&nbsp;FROM&nbsp;tutorial.animal_types&nbsp;att&nbsp;where&nbsp;att.animal_type_description&nbsp;LIKE&nbsp;<span class="string">"%duck%"</span><span>&nbsp;OR&nbsp;att.animal_type_description&nbsp;LIKE&nbsp;</span><span class="string">"%cow%"</span><span>)&nbsp;&nbsp;</span></span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT f.animal_id AS animal_id,
+       f.animal_type AS animal_type,
+       f.animal_description AS animal_description,
+       f.animal_name AS animal_name
+
+FROM tutorial.farm f
+
+WHERE f.animal_type IN (SELECT att.animal_type_id FROM tutorial.animal_types att where att.animal_type_description LIKE "%duck%" OR att.animal_type_description LIKE "%cow%")
+</pre>
+
+<p>We begin to see the power:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/ss_4.png" title="Sub Selects">
+
+<p>We can use a Sub-Select to search and give us a data set to limit our
+ farm results.  We can take this just a bit further by also using a 
+Sub-Select in our query SELECT.  Say for instance that we want to get 
+the animal_type_description as a Sub-Select in our main query:</p>
+
+<div class="dp-highlighter"><div class="bar"><div class="tools"><a href="#" onclick="dp.sh.Toolbar.Command('ViewSource',this);return false;">view plain</a><a href="#" onclick="dp.sh.Toolbar.Command('CopyToClipboard',this);return false;">copy to clipboard</a><a href="#" onclick="dp.sh.Toolbar.Command('PrintSource',this);return false;">print</a><a href="#" onclick="dp.sh.Toolbar.Command('About',this);return false;">?</a></div></div><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;f.animal_id&nbsp;AS&nbsp;animal_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_type&nbsp;AS&nbsp;animal_type,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_description&nbsp;AS&nbsp;animal_description,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_name&nbsp;AS&nbsp;animal_name,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(SELECT&nbsp;att.animal_type_description&nbsp;FROM&nbsp;tutorial.animal_types&nbsp;att&nbsp;where&nbsp;att.animal_type_id&nbsp;=&nbsp;f.animal_type)&nbsp;AS&nbsp;description&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>FROM&nbsp;tutorial.farm&nbsp;f&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>WHERE&nbsp;f.animal_type&nbsp;IN&nbsp;(SELECT&nbsp;att.animal_type_id&nbsp;FROM&nbsp;tutorial.animal_types&nbsp;att&nbsp;where&nbsp;att.animal_type_description&nbsp;LIKE&nbsp;<span class="string">"%duck%"</span><span>&nbsp;OR&nbsp;att.animal_type_description&nbsp;LIKE&nbsp;</span><span class="string">"%cow%"</span><span>)&nbsp;&nbsp;</span></span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT f.animal_id AS animal_id,
+       f.animal_type AS animal_type,
+       f.animal_description AS animal_description,
+       f.animal_name AS animal_name,
+       (SELECT att.animal_type_description FROM tutorial.animal_types att where att.animal_type_id = f.animal_type) AS description
+
+FROM tutorial.farm f
+
+WHERE f.animal_type IN (SELECT att.animal_type_id FROM tutorial.animal_types att where att.animal_type_description LIKE "%duck%" OR att.animal_type_description LIKE "%cow%")
+</pre>
+
+<p>Which returns:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/ss_5.png" title="Sub Selects">
+
+<p>In this query we are placing a condition on our Sub-Select to return 
+the animal_type_description when it matches the f.animal_id.  This 
+condition will last for this pass, and will be reset on the next data 
+set.  Basically, we have joined our tables together by simply using a 
+Sub-Select.  Again, re-read the caution from the beginning of this 
+section on the performance, but as you can see you can use a Sub-Select 
+to quickly join a table based on a condition performed in the 
+Sub-Select.</p>
+
+<hr> <h2> <span>INNER JOINS</span>: The Exclusive Club</h2>
+
+<p>With Sub-Selects out of the way, let's get to an INNER JOIN.  I have 
+always seen joins taught with nice looking circles which show where the 
+JOIN is selecting.  I would rather think of joins in a more natural 
+learning way which I learned in grade school of grouping pictures.  I 
+always visualize what I am wanting to get from my query before I write 
+it.  When I visualize an exclusive relationship, that's when I use an 
+INNER JOIN.</p>
+
+<p>For instance, let's say that I want to see the animal type 
+description for my farm animals, but only when  an animal type id 
+exists.  I could write an INNER JOIN that would return this result:</p>
+
+<div class="dp-highlighter"><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;f.animal_id&nbsp;AS&nbsp;farm_animal_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_type&nbsp;AS&nbsp;farm_animal_type,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_description&nbsp;AS&nbsp;farm_animal_description,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_name&nbsp;AS&nbsp;farm_animal_name,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;att.animal_type_description&nbsp;AS&nbsp;description&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>FROM&nbsp;tutorial.farm&nbsp;f&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>INNER&nbsp;JOIN&nbsp;tutorial.animal_types&nbsp;att&nbsp;&nbsp;</span></li><li class=""><span>ON&nbsp;f.animal_type&nbsp;=&nbsp;att.animal_type_id;&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT f.animal_id AS farm_animal_id,
+       f.animal_type AS farm_animal_type,
+       f.animal_description AS farm_animal_description,
+       f.animal_name AS farm_animal_name,
+       att.animal_type_description AS description
+
+FROM tutorial.farm f
+
+INNER JOIN tutorial.animal_types att
+ON f.animal_type = att.animal_type_id;
+</pre>
+
+<p>Which returns:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/inner_1.png" title="Inner Joins">
+
+<p>Awesome.  That said, this example does not show the exclusivity that 
+we get from our INNER JOIN.  Let's do something that happens every day 
+with our data structure and delete an entry from our definition look up 
+table, animal types.  I am going to delete the "cat" description:</p>
+
+<div class="dp-highlighter"><div class="bar"><div class="tools"><a href="#" onclick="dp.sh.Toolbar.Command('ViewSource',this);return false;">view plain</a><a href="#" onclick="dp.sh.Toolbar.Command('CopyToClipboard',this);return false;">copy to clipboard</a><a href="#" onclick="dp.sh.Toolbar.Command('PrintSource',this);return false;">print</a><a href="#" onclick="dp.sh.Toolbar.Command('About',this);return false;">?</a></div></div><ol class="dp-c" start="1"><li class="alt"><span><span class="func">DELETE</span><span>&nbsp;FROM&nbsp;animal_types&nbsp;&nbsp;</span></span></li><li class=""><span>WHERE&nbsp;animal_type_description&nbsp;=&nbsp;<span class="string">"cat"</span><span>&nbsp;&nbsp;</span></span></li></ol></div><pre style="display: none;" name="code" class="php">DELETE FROM animal_types
+WHERE animal_type_description = "cat"
+</pre>
+
+<p>And now I want to re-run my original query:</p>
+
+<div class="dp-highlighter"><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;f.animal_id&nbsp;AS&nbsp;farm_animal_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_type&nbsp;AS&nbsp;farm_animal_type,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_description&nbsp;AS&nbsp;farm_animal_description,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_name&nbsp;AS&nbsp;farm_animal_name,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;att.animal_type_description&nbsp;AS&nbsp;description&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>FROM&nbsp;tutorial.farm&nbsp;f&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>INNER&nbsp;JOIN&nbsp;tutorial.animal_types&nbsp;att&nbsp;&nbsp;</span></li><li class=""><span>ON&nbsp;f.animal_type&nbsp;=&nbsp;att.animal_type_id;&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT f.animal_id AS farm_animal_id,
+       f.animal_type AS farm_animal_type,
+       f.animal_description AS farm_animal_description,
+       f.animal_name AS farm_animal_name,
+       att.animal_type_description AS description
+
+FROM tutorial.farm f
+
+INNER JOIN tutorial.animal_types att
+ON f.animal_type = att.animal_type_id;
+</pre>
+
+<p>Which now only returns three results:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/inner_2.png" title="Inner Joins">
+
+<p>All I have done is removed an attribute from my look-up table, and "Zoe" is still in my farm animals table:</p>
+
+<div class="dp-highlighter"><div class="bar"><div class="tools"><a href="#" onclick="dp.sh.Toolbar.Command('ViewSource',this);return false;">view plain</a><a href="#" onclick="dp.sh.Toolbar.Command('CopyToClipboard',this);return false;">copy to clipboard</a><a href="#" onclick="dp.sh.Toolbar.Command('PrintSource',this);return false;">print</a><a href="#" onclick="dp.sh.Toolbar.Command('About',this);return false;">?</a></div></div><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;f.animal_name&nbsp;</span><span class="keyword">as</span><span>&nbsp;name&nbsp;&nbsp;</span></span></li><li class=""><span>FROM&nbsp;tutorial.farm&nbsp;f&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT f.animal_name as name
+FROM tutorial.farm f
+</pre>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/inner_3.png" title="Inner Joins">
+
+<p>But since there is not a match in my animal types table, I will not get a result from my farm animals.</p>
+
+<p>Let's play the matching game with our wild animals table to test the concept a little more:</p>
+
+<div class="dp-highlighter"><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;w.animal_id&nbsp;AS&nbsp;wild_animal_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w.animal_type&nbsp;AS&nbsp;wild_animal_type,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w.animal_description&nbsp;AS&nbsp;wild_animal_description,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w.animal_name&nbsp;AS&nbsp;wild_animal_name,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;att.animal_type_description&nbsp;AS&nbsp;description&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>FROM&nbsp;tutorial.wild&nbsp;w&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>INNER&nbsp;JOIN&nbsp;tutorial.animal_types&nbsp;att&nbsp;&nbsp;</span></li><li class=""><span>ON&nbsp;w.animal_type&nbsp;=&nbsp;att.animal_type_id&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT w.animal_id AS wild_animal_id,
+       w.animal_type AS wild_animal_type,
+       w.animal_description AS wild_animal_description,
+       w.animal_name AS wild_animal_name,
+       att.animal_type_description AS description
+
+FROM tutorial.wild w
+
+INNER JOIN tutorial.animal_types att
+ON w.animal_type = att.animal_type_id
+</pre>
+
+<p>Which gives us a result of:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/inner_4.png" title="Inner Joins">
+
+<p>Again, always remember an INNER JOIN is going to return data from two
+ tables where there is a match in both of the tables.  When you compare 
+two pictures and make a single picture from the two, you will only be 
+drawing the matches.</p>
+
+<hr> <h2> <span>OUTER JOINS</span>: The Descriptive Club</h2>
+
+<p>INNER JOINs are easy to use, but can be limiting.  There are two 
+types of joins with MySQL which do not have the exclusivity rules, and 
+they are LEFT OUTER JOIN and RIGHT OUTER JOIN.  Other SQL databases also
+ have a FULL OUTER JOIN, which you can simulate in MySQL with a UNION.  I
+ tend to exclusively use LEFT OUTER JOINs, as I think of my OUTER JOINS 
+as adding description to my SELECT statements.</p>
+
+<p>When you are using a LEFT OUTER JOIN you are basically saying, get me
+ everything from the LEFT table and join anything that matches the 
+condition from the RIGHT table non-exclusively:</p>
+
+<div class="dp-highlighter"><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;f.animal_id&nbsp;AS&nbsp;farm_animal_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_type&nbsp;AS&nbsp;farm_animal_type,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_description&nbsp;AS&nbsp;farm_animal_description,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_name&nbsp;AS&nbsp;farm_animal_name,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;att.animal_type_description&nbsp;AS&nbsp;description&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>FROM&nbsp;tutorial.farm&nbsp;f&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_types&nbsp;att&nbsp;&nbsp;</span></li><li class=""><span>ON&nbsp;f.animal_type&nbsp;=&nbsp;att.animal_type_id&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT f.animal_id AS farm_animal_id,
+       f.animal_type AS farm_animal_type,
+       f.animal_description AS farm_animal_description,
+       f.animal_name AS farm_animal_name,
+       att.animal_type_description AS description
+
+FROM tutorial.farm f
+
+LEFT OUTER JOIN tutorial.animal_types att
+ON f.animal_type = att.animal_type_id
+</pre>
+
+<p>Gives us a result of:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/outer_1.png" title="Outer Joins">
+
+<p>Our farm table is our LEFT table as that is where my natural 
+selection comes from, and it will always return a result from the LEFT 
+table, even when there is nothing that matches from our RIGHT table.  
+Let's take a look at an example of a RIGHT OUTER JOIN using the same 
+basic SELECT:</p>
+
+<div class="dp-highlighter"><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;f.animal_id&nbsp;AS&nbsp;farm_animal_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_type&nbsp;AS&nbsp;farm_animal_type,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_description&nbsp;AS&nbsp;farm_animal_description,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_name&nbsp;AS&nbsp;farm_animal_name,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;att.animal_type_description&nbsp;AS&nbsp;description&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>FROM&nbsp;tutorial.farm&nbsp;f&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>RIGHT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_types&nbsp;att&nbsp;&nbsp;</span></li><li class=""><span>ON&nbsp;f.animal_type&nbsp;=&nbsp;att.animal_type_id&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT f.animal_id AS farm_animal_id,
+       f.animal_type AS farm_animal_type,
+       f.animal_description AS farm_animal_description,
+       f.animal_name AS farm_animal_name,
+       att.animal_type_description AS description
+
+FROM tutorial.farm f
+
+RIGHT OUTER JOIN tutorial.animal_types att
+ON f.animal_type = att.animal_type_id
+</pre>
+
+<p>Which gives us a result of:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/outer_2.png" title="Outer Joins">
+
+<p>Which in my mind is not nearly as useful as a data set, because I end
+ up will NULL entries in my LEFT data set.  When I write a query, I 
+generally want to know everything in my LEFT without those nasty NULL 
+entries to deal with.  Where OUTER JOINS really come in handy is when we
+ are joining multiple tables together to build upon the information.  
+Lets add a new look up table to the mix for our descriptions of whether 
+the animal is striped, spotted or solid:</p>
+
+<div class="dp-highlighter"><div class="bar"><div class="tools"><a href="#" onclick="dp.sh.Toolbar.Command('ViewSource',this);return false;">view plain</a><a href="#" onclick="dp.sh.Toolbar.Command('CopyToClipboard',this);return false;">copy to clipboard</a><a href="#" onclick="dp.sh.Toolbar.Command('PrintSource',this);return false;">print</a><a href="#" onclick="dp.sh.Toolbar.Command('About',this);return false;">?</a></div></div><ol class="dp-c" start="1"><li class="alt"><span><span>--&nbsp;&nbsp;</span></span></li><li class=""><span>--&nbsp;Table&nbsp;structure&nbsp;<span class="keyword">for</span><span>&nbsp;table&nbsp;`animal_descriptions`&nbsp;&nbsp;</span></span></li><li class="alt"><span>--&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>CREATE&nbsp;TABLE&nbsp;`animal_descriptions`&nbsp;(&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;`animal_description_id`&nbsp;int(11)&nbsp;NOT&nbsp;NULL&nbsp;AUTO_INCREMENT,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;`animal_description`&nbsp;varchar(255)&nbsp;NOT&nbsp;NULL,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;PRIMARY&nbsp;KEY&nbsp;(`animal_description_id`)&nbsp;&nbsp;</span></li><li class="alt"><span>)&nbsp;ENGINE=MyISAM&nbsp;&nbsp;DEFAULT&nbsp;CHARSET=utf8&nbsp;AUTO_INCREMENT=4&nbsp;;&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>--&nbsp;&nbsp;</span></li><li class=""><span>--&nbsp;Dumping&nbsp;data&nbsp;<span class="keyword">for</span><span>&nbsp;table&nbsp;`animal_descriptions`&nbsp;&nbsp;</span></span></li><li class="alt"><span>--&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>INSERT&nbsp;INTO&nbsp;`animal_descriptions`&nbsp;VALUES(1,&nbsp;<span class="string">'Spotted'</span><span>);&nbsp;&nbsp;</span></span></li><li class=""><span>INSERT&nbsp;INTO&nbsp;`animal_descriptions`&nbsp;VALUES(2,&nbsp;<span class="string">'Striped'</span><span>);&nbsp;&nbsp;</span></span></li><li class="alt"><span>INSERT&nbsp;INTO&nbsp;`animal_descriptions`&nbsp;VALUES(3,&nbsp;<span class="string">'Solid&nbsp;Color'</span><span>);&nbsp;&nbsp;</span></span></li></ol></div><pre style="display: none;" name="code" class="php">--
+-- Table structure for table `animal_descriptions`
+--
+
+CREATE TABLE `animal_descriptions` (
+  `animal_description_id` int(11) NOT NULL AUTO_INCREMENT,
+  `animal_description` varchar(255) NOT NULL,
+  PRIMARY KEY (`animal_description_id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
+
+--
+-- Dumping data for table `animal_descriptions`
+--
+
+INSERT INTO `animal_descriptions` VALUES(1, 'Spotted');
+INSERT INTO `animal_descriptions` VALUES(2, 'Striped');
+INSERT INTO `animal_descriptions` VALUES(3, 'Solid Color');
+</pre>
+
+<p>And after I change the values in my farm and wild tables to integers 
+to match my description ids, I can then make multiple OUTER joins on my 
+original query:</p>
+
+<div class="dp-highlighter"><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;f.animal_id&nbsp;AS&nbsp;farm_animal_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_type&nbsp;AS&nbsp;farm_animal_type,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d.animal_description&nbsp;AS&nbsp;farm_animal_description,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_name&nbsp;AS&nbsp;farm_animal_name,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;att.animal_type_description&nbsp;AS&nbsp;description&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>FROM&nbsp;tutorial.farm&nbsp;f&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_types&nbsp;att&nbsp;&nbsp;</span></li><li class=""><span>ON&nbsp;f.animal_type&nbsp;=&nbsp;att.animal_type_id&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_descriptions&nbsp;d&nbsp;&nbsp;</span></li><li class="alt"><span>on&nbsp;f.animal_description&nbsp;=&nbsp;d.animal_description_id&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT f.animal_id AS farm_animal_id,
+       f.animal_type AS farm_animal_type,
+       d.animal_description AS farm_animal_description,
+       f.animal_name AS farm_animal_name,
+       att.animal_type_description AS description
+
+FROM tutorial.farm f
+
+LEFT OUTER JOIN tutorial.animal_types att
+ON f.animal_type = att.animal_type_id
+
+LEFT OUTER JOIN tutorial.animal_descriptions d
+on f.animal_description = d.animal_description_id
+</pre>
+
+<p>We are saying give me all farm animal names, and while you are at it,
+ give me the type of animal it is, as well as the description of the 
+animal, even when there might not be a match for the farm animal in the 
+RIGHT tables:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/outer_3.png" title="Outer Joins">
+
+<p>Bam!  We have what we are after.  The only limit to a join is your 
+imagination and the performance of your database server.  The more that 
+you normalize, the more that you will probably have the need to add 
+non-exclusive description to you results.</p>
+
+<hr> <h2> <span>Combining JOINS</span>: Mix and Match</h2>
+
+<p>There are times where you need exclusivity on a join, but want 
+description from another join.  There is no law (except in Iceland, 
+parts of Nova Scotia, and Eastern Kentucky) that states that you can not
+ use both INNER joins and OUTER joins in the same SELECT.  Let's take a 
+look at our wild animals for a moment:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/combine_1.png" title="Multiple Joins">
+
+<p>We have one animal that is striped.  Let's remove striped from our 
+new animal description table, and then just use LEFT OUTER JOINs to 
+simulate our last example from the wild side:</p>
+
+<div class="dp-highlighter"><div class="bar"><div class="tools"><a href="#" onclick="dp.sh.Toolbar.Command('ViewSource',this);return false;">view plain</a><a href="#" onclick="dp.sh.Toolbar.Command('CopyToClipboard',this);return false;">copy to clipboard</a><a href="#" onclick="dp.sh.Toolbar.Command('PrintSource',this);return false;">print</a><a href="#" onclick="dp.sh.Toolbar.Command('About',this);return false;">?</a></div></div><ol class="dp-c" start="1"><li class="alt"><span><span class="func">DELETE</span><span>&nbsp;FROM&nbsp;tutorial.animal_descriptions&nbsp;where&nbsp;animal_description_id&nbsp;=&nbsp;</span><span class="string">'1'</span><span>&nbsp;&nbsp;</span></span></li></ol></div><pre style="display: none;" name="code" class="php">DELETE FROM tutorial.animal_descriptions where animal_description_id = '1'
+</pre>
+
+<p>And to select from our wild animals just as we did our farm animals:</p>
+
+<div class="dp-highlighter"><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;w.animal_id&nbsp;AS&nbsp;wild_animal_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w.animal_type&nbsp;AS&nbsp;wild_animal_type,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d.animal_description&nbsp;AS&nbsp;farm_animal_description,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w.animal_name&nbsp;AS&nbsp;wild_animal_name,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;att.animal_type_description&nbsp;AS&nbsp;description&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>FROM&nbsp;tutorial.wild&nbsp;w&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_types&nbsp;att&nbsp;&nbsp;</span></li><li class=""><span>ON&nbsp;w.animal_type&nbsp;=&nbsp;att.animal_type_id&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_descriptions&nbsp;d&nbsp;&nbsp;</span></li><li class="alt"><span>on&nbsp;w.animal_description&nbsp;=&nbsp;d.animal_description_id&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT w.animal_id AS wild_animal_id,
+       w.animal_type AS wild_animal_type,
+       d.animal_description AS farm_animal_description,
+       w.animal_name AS wild_animal_name,
+       att.animal_type_description AS description
+
+FROM tutorial.wild w
+
+LEFT OUTER JOIN tutorial.animal_types att
+ON w.animal_type = att.animal_type_id
+
+LEFT OUTER JOIN tutorial.animal_descriptions d
+on w.animal_description = d.animal_description_id
+</pre>
+
+<p>Which gives us a NULL value where our Striped animal description used to be:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/combine_2.png" title="Multiple Joins">
+
+<p>That's all well and good, until you realize that your data structure 
+is no longer intact because of that NULL value.  Let's combine our OUTER
+ join description with the exclusivity of an INNER JOIN on our 
+description:</p>
+
+<div class="dp-highlighter"><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;w.animal_id&nbsp;AS&nbsp;wild_animal_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w.animal_type&nbsp;AS&nbsp;wild_animal_type,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d.animal_description&nbsp;AS&nbsp;farm_animal_description,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w.animal_name&nbsp;AS&nbsp;wild_animal_name,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;att.animal_type_description&nbsp;AS&nbsp;description&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>FROM&nbsp;tutorial.wild&nbsp;w&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_types&nbsp;att&nbsp;&nbsp;</span></li><li class=""><span>ON&nbsp;w.animal_type&nbsp;=&nbsp;att.animal_type_id&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>INNER&nbsp;JOIN&nbsp;tutorial.animal_descriptions&nbsp;d&nbsp;&nbsp;</span></li><li class="alt"><span>on&nbsp;w.animal_description&nbsp;=&nbsp;d.animal_description_id&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT w.animal_id AS wild_animal_id,
+       w.animal_type AS wild_animal_type,
+       d.animal_description AS farm_animal_description,
+       w.animal_name AS wild_animal_name,
+       att.animal_type_description AS description
+
+FROM tutorial.wild w
+
+LEFT OUTER JOIN tutorial.animal_types att
+ON w.animal_type = att.animal_type_id
+
+INNER JOIN tutorial.animal_descriptions d
+on w.animal_description = d.animal_description_id
+</pre>
+
+<p>Which gets rid of that NULL value, which might be the difference of a
+ bug in your application because of a data integrity issue, and peace 
+and quiet on the weekend:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/combine_3.png" title="Multiple Joins">
+
+<p>We can also self join a table which comes in handy from time to time.
+  What we are doing when joining tables together is getting information 
+from table.a and combining it table.b.  SQL doesn't really care if 
+table.b is the same table as table.a.  Here's an example:</p>
+
+<div class="dp-highlighter"><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;w.animal_id&nbsp;AS&nbsp;wild_animal_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w.animal_type&nbsp;AS&nbsp;wild_animal_type,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d.animal_description&nbsp;AS&nbsp;farm_animal_description,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;same.animal_name&nbsp;AS&nbsp;wild_animal_name_from_same_table,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;att.animal_type_description&nbsp;AS&nbsp;description&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>FROM&nbsp;tutorial.wild&nbsp;w&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_types&nbsp;att&nbsp;&nbsp;</span></li><li class=""><span>ON&nbsp;w.animal_type&nbsp;=&nbsp;att.animal_type_id&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>INNER&nbsp;JOIN&nbsp;tutorial.animal_descriptions&nbsp;d&nbsp;&nbsp;</span></li><li class="alt"><span>on&nbsp;w.animal_description&nbsp;=&nbsp;d.animal_description_id&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.wild&nbsp;same&nbsp;&nbsp;</span></li><li class=""><span>ON&nbsp;w.animal_id&nbsp;=&nbsp;same.animal_id&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT w.animal_id AS wild_animal_id,
+       w.animal_type AS wild_animal_type,
+       d.animal_description AS farm_animal_description,
+       same.animal_name AS wild_animal_name_from_same_table,
+       att.animal_type_description AS description
+
+FROM tutorial.wild w
+
+LEFT OUTER JOIN tutorial.animal_types att
+ON w.animal_type = att.animal_type_id
+
+INNER JOIN tutorial.animal_descriptions d
+on w.animal_description = d.animal_description_id
+
+LEFT OUTER JOIN tutorial.wild same
+ON w.animal_id = same.animal_id
+</pre>
+
+<p>In this example, we are combining the same wild table to itself on animal id to get restate it's name:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/combine_4.png" title="Multiple Joins">
+
+<p>While the result might not be that interesting in this example, think
+ about how many times in your applications that you have created 
+multiple tables to express a parent to child relationship.  You could 
+easily cut out the multiple table structure by joining a table on itself
+ to change the meaning of the relationship.</p>
+
+<hr> <h2> <span>Unions</span>: A Different Way to Join</h2>
+
+<p>Even with INNER, OUTER, Sub-Selects tools at our disposal, we find 
+ourselves needing even further tools to get the right data set at times.
+  Sometimes we need to get information about wild animals as well as our
+ farm animals.  We have basically three pictures of ducks and cows that 
+need to be combined into a single picture.  Enter a UNION.</p>
+
+<p>A UNION is the combination of multiple queries which combine our data
+ sets into one.  Let's take the situation where we want a description of
+ all animals, whether farm or wild.  We can simply express that using a 
+UNION:</p>
+
+<div class="dp-highlighter"><div class="bar"><div class="tools"><a href="#" onclick="dp.sh.Toolbar.Command('ViewSource',this);return false;">view plain</a><a href="#" onclick="dp.sh.Toolbar.Command('CopyToClipboard',this);return false;">copy to clipboard</a><a href="#" onclick="dp.sh.Toolbar.Command('PrintSource',this);return false;">print</a><a href="#" onclick="dp.sh.Toolbar.Command('About',this);return false;">?</a></div></div><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;f.animal_id&nbsp;AS&nbsp;animal_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_type&nbsp;AS&nbsp;animal_type,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d.animal_description&nbsp;AS&nbsp;animal_description,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_name&nbsp;AS&nbsp;animal_name,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">'Farm'</span><span>&nbsp;AS&nbsp;domain,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;att.animal_type_description&nbsp;AS&nbsp;description&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>FROM&nbsp;tutorial.farm&nbsp;f&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_types&nbsp;att&nbsp;&nbsp;</span></li><li class="alt"><span>ON&nbsp;f.animal_type&nbsp;=&nbsp;att.animal_type_id&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_descriptions&nbsp;d&nbsp;&nbsp;</span></li><li class=""><span>ON&nbsp;f.animal_description&nbsp;=&nbsp;d.animal_description_id&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>UNION&nbsp;ALL&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>SELECT&nbsp;w.animal_id&nbsp;AS&nbsp;animal_id,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w.animal_type&nbsp;AS&nbsp;animal_type,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d.animal_description&nbsp;AS&nbsp;animal_description,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w.animal_name&nbsp;AS&nbsp;animal_name,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">'Wild'</span><span>&nbsp;AS&nbsp;domain,&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;att.animal_type_description&nbsp;AS&nbsp;description&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>FROM&nbsp;tutorial.wild&nbsp;w&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_types&nbsp;att&nbsp;&nbsp;</span></li><li class=""><span>ON&nbsp;w.animal_type&nbsp;=&nbsp;att.animal_type_id&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_descriptions&nbsp;d&nbsp;&nbsp;</span></li><li class="alt"><span>ON&nbsp;w.animal_description&nbsp;=&nbsp;d.animal_description_id&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT f.animal_id AS animal_id,
+       f.animal_type AS animal_type,
+       d.animal_description AS animal_description,
+       f.animal_name AS animal_name,
+       'Farm' AS domain,
+       att.animal_type_description AS description
+
+FROM tutorial.farm f
+
+LEFT OUTER JOIN tutorial.animal_types att
+ON f.animal_type = att.animal_type_id
+
+LEFT OUTER JOIN tutorial.animal_descriptions d
+ON f.animal_description = d.animal_description_id
+
+UNION ALL
+
+SELECT w.animal_id AS animal_id,
+       w.animal_type AS animal_type,
+       d.animal_description AS animal_description,
+       w.animal_name AS animal_name,
+       'Wild' AS domain,
+       att.animal_type_description AS description
+
+FROM tutorial.wild w
+
+LEFT OUTER JOIN tutorial.animal_types att
+ON w.animal_type = att.animal_type_id
+
+LEFT OUTER JOIN tutorial.animal_descriptions d
+ON w.animal_description = d.animal_description_id
+</pre>
+
+<p>In this UNION the one thing that I have not explained is the explicit
+ column "domain".  I am merely saying either give me "Farm" or "Wild" 
+depending on when you are running.  I am also using UNION ALL instead of
+ UNION as I want all results and not just distinct values.  Our complex 
+query gives us the expected data set that we were hoping for:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/union_1.png" title="Unions">
+
+<p>We can also use a Sub-Select in our UNION:</p>
+
+<div class="dp-highlighter"><div class="bar"><div class="tools"><a href="#" onclick="dp.sh.Toolbar.Command('ViewSource',this);return false;">view plain</a><a href="#" onclick="dp.sh.Toolbar.Command('CopyToClipboard',this);return false;">copy to clipboard</a><a href="#" onclick="dp.sh.Toolbar.Command('PrintSource',this);return false;">print</a><a href="#" onclick="dp.sh.Toolbar.Command('About',this);return false;">?</a></div></div><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;f.animal_id&nbsp;AS&nbsp;animal_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_type&nbsp;AS&nbsp;animal_type,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d.animal_description&nbsp;AS&nbsp;animal_description,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_name&nbsp;AS&nbsp;animal_name,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">'Farm'</span><span>&nbsp;AS&nbsp;domain,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;att.animal_type_description&nbsp;AS&nbsp;description&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>FROM&nbsp;tutorial.farm&nbsp;f&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_types&nbsp;att&nbsp;&nbsp;</span></li><li class="alt"><span>ON&nbsp;f.animal_type&nbsp;=&nbsp;att.animal_type_id&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_descriptions&nbsp;d&nbsp;&nbsp;</span></li><li class=""><span>ON&nbsp;f.animal_description&nbsp;=&nbsp;d.animal_description_id&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>UNION&nbsp;ALL&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>SELECT&nbsp;w.animal_id&nbsp;AS&nbsp;animal_id,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w.animal_type&nbsp;AS&nbsp;animal_type,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d.animal_description&nbsp;AS&nbsp;animal_description,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w.animal_name&nbsp;AS&nbsp;animal_name,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">'Wild'</span><span>&nbsp;AS&nbsp;domain,&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;att.animal_type_description&nbsp;AS&nbsp;description&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>FROM&nbsp;tutorial.wild&nbsp;w&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_types&nbsp;att&nbsp;&nbsp;</span></li><li class=""><span>ON&nbsp;w.animal_type&nbsp;=&nbsp;att.animal_type_id&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_descriptions&nbsp;d&nbsp;&nbsp;</span></li><li class="alt"><span>ON&nbsp;w.animal_description&nbsp;=&nbsp;d.animal_description_id&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>WHERE&nbsp;w.animal_id&nbsp;IN&nbsp;(SELECT&nbsp;animal_id&nbsp;FROM&nbsp;wild&nbsp;WHERE&nbsp;animal_id&nbsp;&lt;=&nbsp;3)&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT f.animal_id AS animal_id,
+       f.animal_type AS animal_type,
+       d.animal_description AS animal_description,
+       f.animal_name AS animal_name,
+       'Farm' AS domain,
+       att.animal_type_description AS description
+
+FROM tutorial.farm f
+
+LEFT OUTER JOIN tutorial.animal_types att
+ON f.animal_type = att.animal_type_id
+
+LEFT OUTER JOIN tutorial.animal_descriptions d
+ON f.animal_description = d.animal_description_id
+
+UNION ALL
+
+SELECT w.animal_id AS animal_id,
+       w.animal_type AS animal_type,
+       d.animal_description AS animal_description,
+       w.animal_name AS animal_name,
+       'Wild' AS domain,
+       att.animal_type_description AS description
+
+FROM tutorial.wild w
+
+LEFT OUTER JOIN tutorial.animal_types att
+ON w.animal_type = att.animal_type_id
+
+LEFT OUTER JOIN tutorial.animal_descriptions d
+ON w.animal_description = d.animal_description_id
+
+WHERE w.animal_id IN (SELECT animal_id FROM wild WHERE animal_id &lt;= 3)
+</pre>
+
+<p>Basically saying give me a union of the two queries, but only give me
+ the results in the wild side that have an animal id less than or equal 
+to 3.  The produced data set is just as expected:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/union_2.png" title="Unions">
+
+<p>Unions are very easy to use, but a couple of notes.  The first side 
+of the UNION will determine the name of the column.  In addition, both 
+sides of the UNION must have the identical column numbers.  You can't 
+have one query with 4 columns of data with the other query with 3.</p>
+
+<hr> <h2> <span>Simulating a FULL OUTER JOIN</span>: Practical Use</h2>
+
+<p>We can tie up everything that we have learned by simulating a FULL 
+OUTER JOIN which as I stated above MySQL does not support by using a 
+simple UNION statement.  Let's use the original query from the beginning
+ of the tutorial:</p>
+
+<div class="dp-highlighter"><ol class="dp-c" start="1"><li class="alt"><span><span>SELECT&nbsp;f.animal_id&nbsp;AS&nbsp;farm_animal_id,&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_type&nbsp;AS&nbsp;farm_animal_type,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d.animal_description&nbsp;AS&nbsp;farm_animal_description,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_name&nbsp;AS&nbsp;farm_animal_name,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;att.animal_type_description&nbsp;AS&nbsp;description&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>FROM&nbsp;tutorial.farm&nbsp;f&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_types&nbsp;att&nbsp;&nbsp;</span></li><li class=""><span>ON&nbsp;f.animal_type&nbsp;=&nbsp;att.animal_type_id&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_descriptions&nbsp;d&nbsp;&nbsp;</span></li><li class="alt"><span>on&nbsp;f.animal_description&nbsp;=&nbsp;d.animal_description_id&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>UNION&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>SELECT&nbsp;f.animal_id&nbsp;AS&nbsp;farm_animal_id,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_type&nbsp;AS&nbsp;farm_animal_type,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d.animal_description&nbsp;AS&nbsp;farm_animal_description,&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.animal_name&nbsp;AS&nbsp;farm_animal_name,&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;att.animal_type_description&nbsp;AS&nbsp;description&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>FROM&nbsp;tutorial.farm&nbsp;f&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>RIGHT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_types&nbsp;att&nbsp;&nbsp;</span></li><li class=""><span>ON&nbsp;f.animal_type&nbsp;=&nbsp;att.animal_type_id&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>RIGHT&nbsp;OUTER&nbsp;JOIN&nbsp;tutorial.animal_descriptions&nbsp;d&nbsp;&nbsp;</span></li><li class="alt"><span>on&nbsp;f.animal_description&nbsp;=&nbsp;d.animal_description_id&nbsp;&nbsp;</span></li></ol></div><pre style="display: none;" name="code" class="php">SELECT f.animal_id AS farm_animal_id,
+       f.animal_type AS farm_animal_type,
+       d.animal_description AS farm_animal_description,
+       f.animal_name AS farm_animal_name,
+       att.animal_type_description AS description
+
+FROM tutorial.farm f
+
+LEFT OUTER JOIN tutorial.animal_types att
+ON f.animal_type = att.animal_type_id
+
+LEFT OUTER JOIN tutorial.animal_descriptions d
+on f.animal_description = d.animal_description_id
+
+UNION
+
+SELECT f.animal_id AS farm_animal_id,
+       f.animal_type AS farm_animal_type,
+       d.animal_description AS farm_animal_description,
+       f.animal_name AS farm_animal_name,
+       att.animal_type_description AS description
+
+FROM tutorial.farm f
+
+RIGHT OUTER JOIN tutorial.animal_types att
+ON f.animal_type = att.animal_type_id
+
+RIGHT OUTER JOIN tutorial.animal_descriptions d
+on f.animal_description = d.animal_description_id
+</pre>
+
+<p>In this case I am using a UNION statement instead of the UNION ALL 
+statement as I just want distinct values.  Here's my result set:</p>
+
+<img src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/union_3.png" title="Unions">
+
+<hr> <h2> Conclusion</h2>
+
+<p>Even with my fingers getting callouses from the amount of typing to 
+explain advanced queries, I really have really only scratched the 
+surface.  I have done my best to explain joins without the same 
+illustrations of circles showing the affective areas.  Those 
+illustrations work, but I think if you lean on your grade school 
+experiences and think "Which one of these is not like the other" you are
+ putting a little more context on the idea of joining data sets and 
+tables.  If you visualize your SELECT statements it becomes so much 
+easier to get that result that you have in mind.  If I have missed 
+anything, just let me know in the comment section.</p>
+
+</div> 
+
+<script class="javascript" src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/shCore.js"></script>
+<script class="javascript" src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/shBrushAll.js"></script>
+	<script type="text/javascript" class="javascript">
+dp.SyntaxHighlighter.ClipboardSwf = 'http://net.tutsplus.com/wp-content/plugins/google-syntax-highlighter/Scripts/clipboard.swf';
+dp.SyntaxHighlighter.HighlightAll('code');
+</script>
+ 
+<div style="position: fixed; top: 0px; right: 11px; width: 155px; height: 1px; z-index: 2147483647;" id="dropdowndeals"><object id="dddContent" data="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/DddWrapper.swf" style="outline: medium none; visibility: visible;" type="application/x-shockwave-flash" height="100%" width="100%"><param value="false" name="menu"><param value="always" name="allowScriptAccess"><param value="transparent" name="wmode"><param value="domain=81.169.250.13&amp;protocol=http:&amp;clientId=B6504F97-575E-45C3-B102-B6DD2D671B32&amp;appDomain=wac.edgecastcdn.net/800952/a1001&amp;serviceDomain=c.couponsvc.com&amp;spriteUrl=//wac.edgecastcdn.net/800952/692f16fd-3872-4c30-8d09-8939101bef86-www/Asset/App/Deals/Sprite&amp;helpLink=http://www.luckyleap.net/Deals&amp;client=DealsBar&amp;changeHeightMethod=DealsBar.changeHeight&amp;changePositionMethod=DealsBar.changePosition" name="flashvars"></object></div><div style="position: absolute; z-index: 2147483647; width: 133px; height: 41.65px; left: -1000px; top: -1000px;"><object id="easyInlineSwf" data="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/easyInline.swf" style="outline: medium none; visibility: visible;" type="application/x-shockwave-flash" height="100%" width="100%"><param value="false" name="menu"><param value="always" name="allowScriptAccess"><param value="transparent" name="wmode"><param value="supportUrl=http://www.luckyleap.net/inline#Reklam&amp;baseUrl=//wac.edgecastcdn.net/800952/a1003&amp;productName=Reklam" name="flashvars"></object></div><script src="MySQL%20-%20A%20Deeper%20Look%20at%20Advanced%20Select%20Queries_files/BannerServer.js" type="text/javascript"></script></body></html>
